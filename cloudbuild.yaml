@@ -1,0 +1,7 @@
+steps:
+  - name: 'openjdk:11'
+    id: Check
+    args: [ './gradlew', 'check']
+  - name: 'openjdk:11'
+    id: Publish
+    args: [ './gradlew', 'publish']

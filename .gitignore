@@ -1,0 +1,6 @@
+backup-dea
+.gradle
+build
+.DS_Store
+out
+.idea
