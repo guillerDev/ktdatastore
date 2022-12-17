@@ -30,6 +30,6 @@ publishing {
 dependencies {
     implementation(kotlin("stdlib"))
     api(project(":ktdatastore"))
-    api("com.google.cloud:google-cloud-datastore:2.12.3")
+    api("com.google.cloud:google-cloud-datastore:2.12.5")
 }
 

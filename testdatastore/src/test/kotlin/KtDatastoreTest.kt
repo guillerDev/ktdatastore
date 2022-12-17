@@ -16,7 +16,8 @@ import kotlin.test.fail
 
 class KtDatastoreTest {
 
-    private fun providePlugin() = listOf(InMemoryDatastorePlugin(), GcloudPlugin())
+    private fun providePlugin() =
+        listOf(InMemoryDatastorePlugin(), GcloudPlugin())
 
     @Test
     fun testStore() {
@@ -31,6 +32,7 @@ class KtDatastoreTest {
                         }
 
                     is Left -> fail(maybe.error.message)
+                    else -> TODO()
                 }
             }
         }
@@ -109,7 +111,6 @@ class KtDatastoreTest {
             }
         }
     }
-
 
     @Test
     fun testCount() {

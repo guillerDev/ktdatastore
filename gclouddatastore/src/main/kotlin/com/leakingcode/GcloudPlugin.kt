@@ -113,7 +113,9 @@ class GcloudPlugin(
     }
 
     override fun counta(entityName: String): Long {
-        val selectAllQuery = Query.newEntityQueryBuilder().setKind(entityName).build()
+        val selectAllQuery = Query.newEntityQueryBuilder()
+            .setNamespace(namespace)
+            .setKind(entityName).build()
         val aggregationQuery: AggregationQuery =
             Query.newAggregationQueryBuilder()
                 .addAggregation(count().`as`(ALIAS_COUNT))

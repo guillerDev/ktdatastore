@@ -39,7 +39,7 @@ class KtDatastore<I>(
         }
     }
 
-    inline fun <reified T> count() {
-        plugin.counta(T::class.simpleName ?: "")
+    inline fun <reified T> count(): Long {
+        return plugin.counta(T::class.simpleName ?: "")
     }
 }
