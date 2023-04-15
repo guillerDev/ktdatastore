@@ -1,5 +1,6 @@
 package com.leakingcode
 
+import com.leakingcode.datatypes.Maybe
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.properties.Properties
 import kotlinx.serialization.properties.decodeFromMap
@@ -39,7 +40,10 @@ class KtDatastore<I>(
         }
     }
 
-    inline fun <reified T> count(): Long {
-        return plugin.counta(T::class.simpleName ?: "")
+    @OptIn(ExperimentalSerializationApi::class)
+    inline fun <reified T> query(byEntityProperties: T): List<Pair<I, T>> {
+        return query(Properties.encodeToMap(byEntityProperties).map { Pair(it.key, it.value) })
     }
+
+    inline fun <reified T> count(): Long = plugin.count(T::class.simpleName ?: "")
 }

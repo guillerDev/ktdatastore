@@ -1,5 +1,7 @@
 package com.leakingcode
 
+import com.leakingcode.datatypes.Maybe
+
 interface PluginDatastore<I> {
 
     fun put(entity: Map<String, Any>, entityName: String): Maybe<I>
@@ -11,7 +13,7 @@ interface PluginDatastore<I> {
         byPropertyValue: List<Pair<String, Any>>
     ): List<Pair<I, Map<String, Any>>>
 
-    fun counta(entityName: String): Long
+    fun count(entityName: String): Long
 
     fun delete(id: I): Maybe<I>
 

@@ -21,13 +21,12 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter
 import com.google.cloud.datastore.TimestampValue
 import com.google.cloud.datastore.ValueType
 import com.google.cloud.datastore.aggregation.Aggregation.count
+import com.leakingcode.datatypes.Left
+import com.leakingcode.datatypes.Maybe
+import com.leakingcode.datatypes.Right
 
-/**
- *
- * gcloud beta emulators datastore start
- */
 class GcloudPlugin(
-    private val datastore: Datastore = buildEmulatedDatastore(),
+    private val datastore: Datastore,
     private val namespace: String? = null
 ) : PluginDatastore<PluginDatastore.GenericId> {
 
@@ -39,6 +38,7 @@ class GcloudPlugin(
     ): Maybe<PluginDatastore.GenericId> {
         val builder = Entity.newBuilder(generateNewKey(entityName))
         entity.asIterable().forEach {
+            // Map type to datastore type
             when (val value = it.value) {
                 is String -> builder.set(it.key, value)
                 is Long -> builder.set(it.key, value)
@@ -106,27 +106,28 @@ class GcloudPlugin(
                 commit()
             } catch (transactionError: DatastoreException) {
                 rollback()
-            } catch (error: IllegalStateException) {
+            } catch (error: Error) {
                 rollback()
             }
         }
     }
 
-    override fun counta(entityName: String): Long {
+    override fun count(entityName: String): Long {
         val selectAllQuery = Query.newEntityQueryBuilder()
             .setNamespace(namespace)
             .setKind(entityName).build()
         val aggregationQuery: AggregationQuery =
             Query.newAggregationQueryBuilder()
+                .setNamespace(namespace)
                 .addAggregation(count().`as`(ALIAS_COUNT))
                 .over(selectAllQuery).build()
         return datastore.runAggregation(aggregationQuery).first().get(ALIAS_COUNT)
     }
 
-    private fun generateNewKey(tableName: String): Key {
+    private fun generateNewKey(entityName: String): Key {
         val keyFactory: KeyFactory = datastore
             .newKeyFactory().apply {
-                setKind(tableName)
+                setKind(entityName)
                 if (namespace != null) setNamespace(namespace)
             }
 
@@ -164,7 +165,10 @@ class GcloudPlugin(
         }
 
     companion object {
-        //todo replace with com.google.cloud.datastore.testing.RemoteDatastoreHelper
+
+        /**
+         * gcloud beta emulators datastore start
+         */
         fun buildEmulatedDatastore(): Datastore {
             val options = DatastoreOptions.newBuilder()
                 .setProjectId(DatastoreOptions.getDefaultProjectId())

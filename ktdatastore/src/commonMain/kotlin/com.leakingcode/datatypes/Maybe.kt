@@ -1,11 +1,11 @@
-package com.leakingcode
+package com.leakingcode.datatypes
 
 sealed class Maybe<T> {
 
     fun justOrError(): T {
         return when (this) {
             is Right -> value
-            is Left -> throw IllegalStateException(error)
+            is Left -> throw error
         }
     }
 

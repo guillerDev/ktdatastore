@@ -1,10 +1,11 @@
+import com.google.cloud.datastore.testing.RemoteDatastoreHelper
 import com.leakingcode.GcloudPlugin
 import com.leakingcode.InMemoryDatastorePlugin
 import com.leakingcode.KtDatastore
-import com.leakingcode.Left
-import com.leakingcode.Maybe
+import com.leakingcode.datatypes.Left
+import com.leakingcode.datatypes.Maybe
 import com.leakingcode.PluginDatastore
-import com.leakingcode.Right
+import com.leakingcode.datatypes.Right
 import com.leakingcode.datatypes.MaybeMonad
 import java.util.Random
 import kotlin.math.absoluteValue
@@ -13,11 +14,23 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import org.junit.After
 
 class KtDatastoreTest {
 
+
+    private val remoteDatastoreHelper = RemoteDatastoreHelper.create()
+
     private fun providePlugin() =
-        listOf(InMemoryDatastorePlugin(), GcloudPlugin())
+        listOf(
+            InMemoryDatastorePlugin(),
+            GcloudPlugin(remoteDatastoreHelper.options.service)
+        )
+
+    @After
+    fun tearDown() {
+        remoteDatastoreHelper.deleteNamespace()
+    }
 
     @Test
     fun testStore() {
@@ -32,8 +45,26 @@ class KtDatastoreTest {
                         }
 
                     is Left -> fail(maybe.error.message)
-                    else -> TODO()
                 }
+            }
+        }
+    }
+
+    @Test
+    fun testQueryByProperty() {
+        val addressToStore = AddressEntity("St. John Pink. 69.", 999)
+        providePlugin().forEach {
+            KtDatastore(it).apply {
+                MaybeMonad { store(addressToStore) }
+                    .bind {
+                        Right(query(AddressEntity("St. John Pink. 69.", 999)))
+                    }
+                    .bind { right ->
+                        assertEquals(1, right.value.size, plugin.toString())
+                        Right(Unit)
+                    }
+                    .unit()
+                    .justOrError()
             }
         }
     }
@@ -43,7 +74,7 @@ class KtDatastoreTest {
         val addressToStore = AddressEntity("St. John Pink. 69.")
         providePlugin().forEach {
             KtDatastore(it).apply {
-                assertFailsWith<IllegalStateException> {
+                assertFailsWith<Error> {
                     MaybeMonad { store(addressToStore) }
                         .bind {
                             get<AddressEntity>(it.value)
@@ -62,7 +93,7 @@ class KtDatastoreTest {
         val addressToStore = AddressEntity("St. John Pink. 69.")
         providePlugin().forEach {
             KtDatastore(it).apply {
-                assertFailsWith<IllegalStateException> {
+                assertFailsWith<Error> {
                     MaybeMonad { store(addressToStore) }
                         .bind { right ->
                             get<AddressEntity>(right.value)
@@ -84,7 +115,7 @@ class KtDatastoreTest {
     }
 
     @Test
-    fun testQuery() {
+    fun testQueryParam() {
         val addressToStore = AddressEntity(
             Random().ints(Random().nextLong().absoluteValue).toString(),
             Random().nextLong()

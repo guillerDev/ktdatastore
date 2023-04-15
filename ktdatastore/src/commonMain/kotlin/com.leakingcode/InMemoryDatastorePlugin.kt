@@ -1,5 +1,8 @@
 package com.leakingcode
 
+import com.leakingcode.datatypes.Left
+import com.leakingcode.datatypes.Maybe
+import com.leakingcode.datatypes.Right
 import kotlin.random.Random
 
 class InMemoryDatastorePlugin : PluginDatastore<PluginDatastore.GenericId> {
@@ -34,12 +37,18 @@ class InMemoryDatastorePlugin : PluginDatastore<PluginDatastore.GenericId> {
         entityName: String,
         byPropertyValue: List<Pair<String, Any>>
     ): List<Pair<PluginDatastore.GenericId, Map<String, Any>>> {
-        return inMemoryMap.toList().map {
-            Pair(PluginDatastore.GenericId(it.first), it.second)
-        }
+        return inMemoryMap.toList()
+            .filter {
+                byPropertyValue.map { byPropertyValue: Pair<String, Any> ->
+                    it.second[byPropertyValue.first] == byPropertyValue.second
+                }.reduce { acc, b -> acc and b }
+            }
+            .map {
+                Pair(PluginDatastore.GenericId(it.first), it.second)
+            }
     }
 
-    override fun counta(entityName: String): Long {
+    override fun count(entityName: String): Long {
         return inMemoryMap.count().toLong()
     }
 
@@ -54,7 +63,7 @@ class InMemoryDatastorePlugin : PluginDatastore<PluginDatastore.GenericId> {
     override fun transaction(blockingCall: () -> Maybe<out Any>) {
         try {
             blockingCall().justOrError()
-        } catch (stateError: IllegalStateException) {
+        } catch (stateError: Error) {
             // nothing
         }
     }

@@ -7,12 +7,10 @@ plugins {
 
 group = "com.leakingcode.gclouddatastore"
 
-
 repositories {
     mavenCentral()
     maven("artifactregistry://europe-west1-maven.pkg.dev/acomult/acomult-jvm")
 }
-
 
 publishing {
     publications {
@@ -30,6 +28,5 @@ publishing {
 dependencies {
     implementation(kotlin("stdlib"))
     api(project(":ktdatastore"))
-    api("com.google.cloud:google-cloud-datastore:2.12.5")
+    api("com.google.cloud:google-cloud-datastore:2.13.0")
 }
-
