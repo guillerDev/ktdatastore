@@ -6,6 +6,11 @@ interface PluginDatastore<I> {
 
     fun put(entity: Map<String, Any>, entityName: String): Maybe<I>
 
+    fun update(
+        id: I,
+        entity: Map<String, Any>,
+    ): Maybe<Unit>
+
     fun get(id: I): Maybe<Map<String, Any>>
 
     fun query(

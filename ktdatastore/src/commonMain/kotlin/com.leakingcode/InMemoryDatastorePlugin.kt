@@ -25,6 +25,11 @@ class InMemoryDatastorePlugin : PluginDatastore<PluginDatastore.GenericId> {
         }
     }
 
+    override fun update(id: PluginDatastore.GenericId, entity: Map<String, Any>): Maybe<Unit> {
+        inMemoryMap[id.value] = entity
+        return Right(Unit)
+    }
+
     override fun get(id: PluginDatastore.GenericId): Maybe<Map<String, Any>> {
         return try {
             Right(inMemoryMap[id.value]!!)

@@ -30,28 +30,23 @@ class GcloudPlugin(
     private val namespace: String? = null
 ) : PluginDatastore<PluginDatastore.GenericId> {
 
-    // todo scope more types, blob or latlong
-    // todo scope to update
     override fun put(
         entity: Map<String, Any>,
         entityName: String
     ): Maybe<PluginDatastore.GenericId> {
-        val builder = Entity.newBuilder(generateNewKey(entityName))
-        entity.asIterable().forEach {
-            // Map type to datastore type
-            when (val value = it.value) {
-                is String -> builder.set(it.key, value)
-                is Long -> builder.set(it.key, value)
-                is Boolean -> builder.set(it.key, value)
-                is Double -> builder.set(it.key, value)
-                else -> throw IllegalStateException("${value.javaClass} not supported.")
-            }
-        }
         return Right(
             PluginDatastore.GenericId(
-                datastore.put(builder.build()).key.toUrlSafe()
+                datastore.put(entity.entityBuilder(Entity.newBuilder(generateNewKey(entityName))))
+                    .key.toUrlSafe()
             )
         )
+    }
+
+    override fun update(
+        id: PluginDatastore.GenericId,
+        entity: Map<String, Any>,
+    ): Maybe<Unit> {
+        return Right(datastore.update(entity.entityBuilder(Entity.newBuilder(Key.fromUrlSafe(id.value)))))
     }
 
     override fun get(id: PluginDatastore.GenericId): Maybe<Map<String, Any>> {
@@ -163,6 +158,22 @@ class GcloudPlugin(
                 else -> "null"
             }
         }
+
+    private fun Map<String, Any>.entityBuilder(builder: Entity.Builder): Entity {
+        asIterable().forEach {
+            // Map type to datastore type
+            when (val value = it.value) {
+                is String -> builder.set(it.key, value)
+                is Long -> builder.set(it.key, value)
+                is Boolean -> builder.set(it.key, value)
+                is Double -> builder.set(it.key, value)
+                // todo scope more types, blob or latlong
+                // todo scope to update
+                else -> throw IllegalStateException("${value.javaClass} not supported.")
+            }
+        }
+        return builder.build()
+    }
 
     companion object {
 
