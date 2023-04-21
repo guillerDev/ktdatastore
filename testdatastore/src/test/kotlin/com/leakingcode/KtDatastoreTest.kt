@@ -17,7 +17,7 @@ import org.junit.After
 class KtDatastoreTest {
 
 
-    private val remoteDatastoreHelper = RemoteDatastoreHelper.create()
+//    private val remoteDatastoreHelper = RemoteDatastoreHelper.create()
 
     private fun providePlugin() =
         listOf(
@@ -27,7 +27,7 @@ class KtDatastoreTest {
 
     @After
     fun tearDown() {
-        remoteDatastoreHelper.deleteNamespace()
+//        remoteDatastoreHelper.deleteNamespace()
     }
 
     @Test
