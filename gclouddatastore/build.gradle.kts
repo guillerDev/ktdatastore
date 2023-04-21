@@ -1,3 +1,4 @@
+val gcloudDatastoreVersion: String by project
 plugins {
     java
     kotlin("jvm")
@@ -28,5 +29,5 @@ publishing {
 dependencies {
     implementation(kotlin("stdlib"))
     api(project(":ktdatastore"))
-    api("com.google.cloud:google-cloud-datastore:2.13.0")
+    api("com.google.cloud:google-cloud-datastore:$gcloudDatastoreVersion")
 }

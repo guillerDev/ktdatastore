@@ -1,7 +1,7 @@
 package com.leakingcode
 
 import com.leakingcode.datatypes.Left
-import com.leakingcode.datatypes.Maybe
+import com.leakingcode.datatypes.Either
 import com.leakingcode.datatypes.Right
 import kotlin.random.Random
 
@@ -14,7 +14,7 @@ class InMemoryDatastorePlugin : PluginDatastore<PluginDatastore.GenericId> {
     override fun put(
         entity: Map<String, Any>,
         entityName: String
-    ): Maybe<PluginDatastore.GenericId> {
+    ): Either<PluginDatastore.GenericId> {
         if (readingWriteFlag) {
             generateKey().let {
                 inMemoryMap[it] = entity
@@ -25,12 +25,12 @@ class InMemoryDatastorePlugin : PluginDatastore<PluginDatastore.GenericId> {
         }
     }
 
-    override fun update(id: PluginDatastore.GenericId, entity: Map<String, Any>): Maybe<Unit> {
+    override fun update(id: PluginDatastore.GenericId, entity: Map<String, Any>): Either<Unit> {
         inMemoryMap[id.value] = entity
         return Right(Unit)
     }
 
-    override fun get(id: PluginDatastore.GenericId): Maybe<Map<String, Any>> {
+    override fun get(id: PluginDatastore.GenericId): Either<Map<String, Any>> {
         return try {
             Right(inMemoryMap[id.value]!!)
         } catch (nullPointer: NullPointerException) {
@@ -58,14 +58,14 @@ class InMemoryDatastorePlugin : PluginDatastore<PluginDatastore.GenericId> {
     }
 
     override fun delete(id: PluginDatastore.GenericId):
-            Maybe<PluginDatastore.GenericId> {
+            Either<PluginDatastore.GenericId> {
         inMemoryMap.remove(id.value)?.let {
             return Right(id)
         }
         return Left(Error("Trying to remove, key ${id.value} not present."))
     }
 
-    override fun transaction(blockingCall: () -> Maybe<out Any>) {
+    override fun transaction(blockingCall: () -> Either<out Any>) {
         try {
             blockingCall().justOrError()
         } catch (stateError: Error) {

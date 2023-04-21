@@ -1,6 +1,6 @@
 package com.leakingcode.datatypes
 
-sealed class Maybe<T> {
+sealed class Either<T> {
 
     fun justOrError(): T {
         return when (this) {
@@ -16,7 +16,7 @@ sealed class Maybe<T> {
         }
     }
 
-    fun <Q> map(f: (T) -> Q): Maybe<Q> {
+    fun <Q> map(f: (T) -> Q): Either<Q> {
         return when (this) {
             is Right -> Right(f(value))
             is Left -> Left(error)
@@ -24,5 +24,5 @@ sealed class Maybe<T> {
     }
 }
 
-data class Right<T>(val value: T) : Maybe<T>()
-data class Left<T>(val error: Error) : Maybe<T>()
+data class Right<T>(val value: T) : Either<T>()
+data class Left<T>(val error: Error) : Either<T>()

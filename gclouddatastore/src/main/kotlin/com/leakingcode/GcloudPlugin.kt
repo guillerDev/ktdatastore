@@ -22,7 +22,7 @@ import com.google.cloud.datastore.TimestampValue
 import com.google.cloud.datastore.ValueType
 import com.google.cloud.datastore.aggregation.Aggregation.count
 import com.leakingcode.datatypes.Left
-import com.leakingcode.datatypes.Maybe
+import com.leakingcode.datatypes.Either
 import com.leakingcode.datatypes.Right
 
 class GcloudPlugin(
@@ -33,7 +33,7 @@ class GcloudPlugin(
     override fun put(
         entity: Map<String, Any>,
         entityName: String
-    ): Maybe<PluginDatastore.GenericId> {
+    ): Either<PluginDatastore.GenericId> {
         return Right(
             PluginDatastore.GenericId(
                 datastore.put(entity.entityBuilder(Entity.newBuilder(generateNewKey(entityName))))
@@ -45,11 +45,11 @@ class GcloudPlugin(
     override fun update(
         id: PluginDatastore.GenericId,
         entity: Map<String, Any>,
-    ): Maybe<Unit> {
+    ): Either<Unit> {
         return Right(datastore.update(entity.entityBuilder(Entity.newBuilder(Key.fromUrlSafe(id.value)))))
     }
 
-    override fun get(id: PluginDatastore.GenericId): Maybe<Map<String, Any>> {
+    override fun get(id: PluginDatastore.GenericId): Either<Map<String, Any>> {
         return try {
             Right(datastore.get(Key.fromUrlSafe(id.value)).properties.mapGcloudValues())
         } catch (argumentError: IllegalArgumentException) {
@@ -83,7 +83,7 @@ class GcloudPlugin(
         }.toList()
     }
 
-    override fun delete(id: PluginDatastore.GenericId): Maybe<PluginDatastore.GenericId> {
+    override fun delete(id: PluginDatastore.GenericId): Either<PluginDatastore.GenericId> {
         return try {
             datastore.delete(Key.fromUrlSafe(id.value))
             Right(id)
@@ -94,7 +94,7 @@ class GcloudPlugin(
         }
     }
 
-    override fun transaction(blockingCall: () -> Maybe<out Any>) {
+    override fun transaction(blockingCall: () -> Either<out Any>) {
         datastore.newTransaction().apply {
             try {
                 blockingCall().justOrError()

@@ -1,3 +1,4 @@
+val serializationPropertiesVersion: String by project
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
@@ -24,13 +25,17 @@ kotlin {
     *  https://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#setting-up-targets */
 //    iosArm64() //todo needs xcode in command line
     jvm()
+    js(IR) {
+        binaries.executable()
+        nodejs()
+    }
 
     sourceSets {
 
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
-                api("org.jetbrains.kotlinx:kotlinx-serialization-properties:1.4.1")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-properties:$serializationPropertiesVersion")
             }
         }
         val commonTest by getting {

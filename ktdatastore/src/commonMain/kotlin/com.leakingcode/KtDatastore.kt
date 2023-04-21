@@ -1,6 +1,6 @@
 package com.leakingcode
 
-import com.leakingcode.datatypes.Maybe
+import com.leakingcode.datatypes.Either
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.properties.Properties
 import kotlinx.serialization.properties.decodeFromMap
@@ -11,25 +11,33 @@ class KtDatastore<I>(
 ) {
 
     @OptIn(ExperimentalSerializationApi::class)
-    inline fun <reified T> store(entity: T): Maybe<I> {
+    inline fun <reified T> store(entity: T): Either<I> {
         return plugin.put(
             Properties.encodeToMap(entity),
-            entity!!::class.simpleName ?: "" // todo
+            entity!!::class.simpleName ?: "" // todo to default
         )
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    inline fun <reified T> get(id: I): Maybe<T> {
+    inline fun <reified T> get(id: I): Either<T> {
         return plugin.get(id).map {
             Properties.decodeFromMap(it)
         }
     }
 
-    fun remove(id: I): Maybe<I> {
+    @OptIn(ExperimentalSerializationApi::class)
+    inline fun <reified T> update(id: I, entity: T): Either<Unit> {
+        return plugin.update(
+            id = id,
+            entity = Properties.encodeToMap(entity)
+        )
+    }
+
+    fun remove(id: I): Either<I> {
         return plugin.delete(id)
     }
 
-    fun transaction(blockingCall: () -> Maybe<out Any>) {
+    fun transaction(blockingCall: () -> Either<out Any>) {
         plugin.transaction(blockingCall)
     }
 

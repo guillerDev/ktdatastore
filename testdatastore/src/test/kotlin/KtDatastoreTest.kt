@@ -3,10 +3,10 @@ import com.leakingcode.GcloudPlugin
 import com.leakingcode.InMemoryDatastorePlugin
 import com.leakingcode.KtDatastore
 import com.leakingcode.datatypes.Left
-import com.leakingcode.datatypes.Maybe
+import com.leakingcode.datatypes.Either
 import com.leakingcode.PluginDatastore
 import com.leakingcode.datatypes.Right
-import com.leakingcode.datatypes.MaybeMonad
+import com.leakingcode.datatypes.EitherMonad
 import java.util.Random
 import kotlin.math.absoluteValue
 import org.junit.Test
@@ -37,14 +37,14 @@ class KtDatastoreTest {
         val addressToStore = AddressEntity("St. John Pink. 69.")
         providePlugin().forEach {
             KtDatastore(it).apply {
-                when (val maybe = store(addressToStore)) {
+                when (val either = store(addressToStore)) {
                     is Right ->
                         assertTrue {
                             addressToStore.address
-                                .contentEquals(get<AddressEntity>(maybe.value).justOrError().address)
+                                .contentEquals(get<AddressEntity>(either.value).justOrError().address)
                         }
 
-                    is Left -> fail(maybe.error.message)
+                    is Left -> fail(either.error.message)
                 }
             }
         }
@@ -55,7 +55,7 @@ class KtDatastoreTest {
         val addressToStore = AddressEntity("St. John Pink. 69.", 999)
         providePlugin().forEach {
             KtDatastore(it).apply {
-                MaybeMonad { store(addressToStore) }
+                EitherMonad { store(addressToStore) }
                     .bind {
                         Right(query(AddressEntity("St. John Pink. 69.", 999)))
                     }
@@ -75,7 +75,7 @@ class KtDatastoreTest {
         providePlugin().forEach {
             KtDatastore(it).apply {
                 assertFailsWith<Error> {
-                    MaybeMonad { store(addressToStore) }
+                    EitherMonad { store(addressToStore) }
                         .bind {
                             get<AddressEntity>(it.value)
                         }
@@ -94,7 +94,7 @@ class KtDatastoreTest {
         providePlugin().forEach {
             KtDatastore(it).apply {
                 assertFailsWith<Error> {
-                    MaybeMonad { store(addressToStore) }
+                    EitherMonad { store(addressToStore) }
                         .bind { right ->
                             get<AddressEntity>(right.value)
                                 .map { right.value }
@@ -122,9 +122,9 @@ class KtDatastoreTest {
         )
         providePlugin().forEach { plugin ->
             KtDatastore(plugin).apply {
-                MaybeMonad { store(addressToStore) }
+                EitherMonad { store(addressToStore) }
                     .bind {
-                        val result: Maybe<List<Pair<PluginDatastore.GenericId, AddressEntity>>> =
+                        val result: Either<List<Pair<PluginDatastore.GenericId, AddressEntity>>> =
                             Right(
                                 query(
                                     listOf(
@@ -164,7 +164,7 @@ class KtDatastoreTest {
                 .apply {
                     val expectedSize = query<AddressEntity>().size
                     transaction {
-                        MaybeMonad { store(addressToStore) }
+                        EitherMonad { store(addressToStore) }
                             .bind { right ->
                                 get<AddressEntity>(right.value)
                                     .map { right.value }

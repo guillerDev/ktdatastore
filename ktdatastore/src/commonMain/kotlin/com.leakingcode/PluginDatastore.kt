@@ -1,17 +1,17 @@
 package com.leakingcode
 
-import com.leakingcode.datatypes.Maybe
+import com.leakingcode.datatypes.Either
 
 interface PluginDatastore<I> {
 
-    fun put(entity: Map<String, Any>, entityName: String): Maybe<I>
+    fun put(entity: Map<String, Any>, entityName: String): Either<I>
 
     fun update(
         id: I,
         entity: Map<String, Any>,
-    ): Maybe<Unit>
+    ): Either<Unit>
 
-    fun get(id: I): Maybe<Map<String, Any>>
+    fun get(id: I): Either<Map<String, Any>>
 
     fun query(
         entityName: String,
@@ -20,9 +20,9 @@ interface PluginDatastore<I> {
 
     fun count(entityName: String): Long
 
-    fun delete(id: I): Maybe<I>
+    fun delete(id: I): Either<I>
 
-    fun transaction(blockingCall: () -> Maybe<out Any>)
+    fun transaction(blockingCall: () -> Either<out Any>)
 
     class GenericId(
         val value: String,

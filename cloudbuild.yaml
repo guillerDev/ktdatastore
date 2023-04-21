@@ -1,7 +1,7 @@
 steps:
-  - name: 'openjdk:11'
+  - name: 'gradle:jdk17'
     id: Check
-    args: [ './gradlew', 'check']
-  - name: 'openjdk:11'
+    args: ['check']
+  - name: 'gradle:jdk17'
     id: Publish
-    args: [ './gradlew', 'publish']
+    args: ['publish']
