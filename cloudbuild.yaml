@@ -1,7 +1,7 @@
 steps:
   - name: 'gradle:jdk17'
     id: Check
-    args: ['check']
+    args: [ 'gradle', 'check' ]
   - name: 'gradle:jdk17'
     id: Publish
-    args: ['publish']
+    args: [ 'gradle','publish' ]
