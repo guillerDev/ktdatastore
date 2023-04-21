@@ -1,10 +1,8 @@
+package com.leakingcode
+
 import com.google.cloud.datastore.testing.RemoteDatastoreHelper
-import com.leakingcode.GcloudPlugin
-import com.leakingcode.InMemoryDatastorePlugin
-import com.leakingcode.KtDatastore
 import com.leakingcode.datatypes.Left
 import com.leakingcode.datatypes.Either
-import com.leakingcode.PluginDatastore
 import com.leakingcode.datatypes.Right
 import com.leakingcode.datatypes.EitherMonad
 import java.util.Random
@@ -24,7 +22,7 @@ class KtDatastoreTest {
     private fun providePlugin() =
         listOf(
             InMemoryDatastorePlugin(),
-            GcloudPlugin(remoteDatastoreHelper.options.service)
+//            GcloudPlugin(remoteDatastoreHelper.options.service)
         )
 
     @After

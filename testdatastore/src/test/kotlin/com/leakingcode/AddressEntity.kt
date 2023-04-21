@@ -1,3 +1,5 @@
+package com.leakingcode
+
 import kotlinx.serialization.Serializable
 
 @Serializable
