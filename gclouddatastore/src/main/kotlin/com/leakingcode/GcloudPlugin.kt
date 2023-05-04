@@ -12,6 +12,7 @@ import com.google.cloud.datastore.Entity
 import com.google.cloud.datastore.Key
 import com.google.cloud.datastore.KeyFactory
 import com.google.cloud.datastore.LatLngValue
+import com.google.cloud.datastore.ListValue
 import com.google.cloud.datastore.LongValue
 import com.google.cloud.datastore.Query
 import com.google.cloud.datastore.QueryResults
@@ -21,8 +22,8 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter
 import com.google.cloud.datastore.TimestampValue
 import com.google.cloud.datastore.ValueType
 import com.google.cloud.datastore.aggregation.Aggregation.count
-import com.leakingcode.datatypes.Left
 import com.leakingcode.datatypes.Either
+import com.leakingcode.datatypes.Left
 import com.leakingcode.datatypes.Right
 
 class GcloudPlugin(
@@ -146,7 +147,9 @@ class GcloudPlugin(
                 ValueType.NULL -> "null"
                 ValueType.STRING -> (it.value as StringValue).get()
                 ValueType.ENTITY -> TODO()
-                ValueType.LIST -> TODO()
+                ValueType.LIST -> (it.value as ListValue).get().map {
+                }
+
                 ValueType.KEY -> TODO()
                 ValueType.LONG -> (it.value as LongValue).get()
                 ValueType.DOUBLE -> (it.value as DoubleValue).get()
@@ -163,7 +166,7 @@ class GcloudPlugin(
         asIterable().forEach {
             // Map type to datastore type
             when (val value = it.value) {
-                is String -> builder.set(it.key, value)
+                is String -> builder.set(it.key, value.StringValue())
                 is Long -> builder.set(it.key, value)
                 is Boolean -> builder.set(it.key, value)
                 is Double -> builder.set(it.key, value)
@@ -173,6 +176,14 @@ class GcloudPlugin(
             }
         }
         return builder.build()
+    }
+
+    private fun String.StringValue(): StringValue? {
+        return StringValue.of(this).toBuilder()
+            .apply {
+                if (this@StringValue.length > 1500) excludeFromIndexes = true
+            }
+            .build()
     }
 
     companion object {
