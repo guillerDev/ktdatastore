@@ -22,6 +22,12 @@ sealed class Either<T> {
             is Left -> Left(error)
         }
     }
+    suspend fun <T, Q> Either<T>.mapSuspend(f: suspend (T) -> Q): Either<Q> {
+        return when (this) {
+            is Right -> Right(f(value))
+            is Left -> Left(error)
+        }
+    }
 }
 
 data class Right<T>(val value: T) : Either<T>()
