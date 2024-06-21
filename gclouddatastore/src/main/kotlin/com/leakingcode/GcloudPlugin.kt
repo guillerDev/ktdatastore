@@ -170,6 +170,7 @@ class GcloudPlugin(
                 is Long -> builder.set(it.key, value)
                 is Boolean -> builder.set(it.key, value)
                 is Double -> builder.set(it.key, value)
+                is Int -> throw IllegalStateException("${value.javaClass} not supported, better to use Long.")
                 // todo scope more types, blob or latlong
                 // todo scope to update
                 else -> throw IllegalStateException("${value.javaClass} not supported.")
