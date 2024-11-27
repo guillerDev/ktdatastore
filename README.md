@@ -1,7 +1,7 @@
 ## KtDatastore
 
 Light and schemaless datastore library in Kotlin multiplatform which leverages kotlin plugin serialization 
-for mapping data classes into datastore. 
+for mapping data classes into datastore entities.
 
 | Library/Target | GCloud datastore | In memory |
 |----------------|:----------------:|----------:|
@@ -16,3 +16,4 @@ Heads up, still in under development, new Kotlin targets will be supported as we
 ### Useful information
 
 [Datastore by GCloud](https://cloud.google.com/datastore/)
+[Github project](https://github.com/googleapis/java-datastore)

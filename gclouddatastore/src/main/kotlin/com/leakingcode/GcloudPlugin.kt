@@ -20,6 +20,7 @@ import com.google.cloud.datastore.StringValue
 import com.google.cloud.datastore.StructuredQuery
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter
 import com.google.cloud.datastore.TimestampValue
+import com.google.cloud.datastore.Value
 import com.google.cloud.datastore.ValueType
 import com.google.cloud.datastore.aggregation.Aggregation.count
 import com.leakingcode.datatypes.Either
@@ -141,13 +142,14 @@ class GcloudPlugin(
         }
     }
 
-    private fun Map<String, com.google.cloud.datastore.Value<*>>.mapGcloudValues() =
+    private fun Map<String, Value<*>>.mapGcloudValues() =
         this.mapValues {
             when (it.value.type) {
                 ValueType.NULL -> "null"
                 ValueType.STRING -> (it.value as StringValue).get()
                 ValueType.ENTITY -> TODO()
                 ValueType.LIST -> (it.value as ListValue).get().map {
+                    // TODO()
                 }
 
                 ValueType.KEY -> TODO()
@@ -171,12 +173,23 @@ class GcloudPlugin(
                 is Boolean -> builder.set(it.key, value)
                 is Double -> builder.set(it.key, value)
                 is Int -> throw IllegalStateException("${value.javaClass} not supported, better to use Long.")
-                // todo scope more types, blob or latlong
-                // todo scope to update
+                // todo scope more types; fulltype, blob or latlong
+                is List<*> -> builder.set(it.key, value.filterNotNull().map {
+                    it.toValue()
+                })
+
                 else -> throw IllegalStateException("${value.javaClass} not supported.")
             }
         }
         return builder.build()
+    }
+
+    private fun Any.toValue(): Value<Any> {
+        return when (this) {
+            is String -> StringValue()
+            is Long -> LongValue.of(this)
+            else -> throw IllegalStateException("${this.javaClass} not supported.")
+        } as Value<Any>
     }
 
     private fun String.StringValue(): StringValue? {

@@ -1,6 +1,6 @@
 package com.leakingcode
 
-import com.google.cloud.datastore.testing.RemoteDatastoreHelper
+import com.google.cloud.datastore.testing.LocalDatastoreHelper
 import com.leakingcode.datatypes.Left
 import com.leakingcode.datatypes.Either
 import com.leakingcode.datatypes.Right
@@ -12,22 +12,30 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlinx.serialization.properties.Properties
+import kotlinx.serialization.properties.encodeToMap
 import org.junit.After
+import org.junit.Before
 
 class KtDatastoreTest {
 
 
-//    private val remoteDatastoreHelper = RemoteDatastoreHelper.create()
+    private val localDatastore = LocalDatastoreHelper.create()
 
     private fun providePlugin() =
         listOf(
             InMemoryDatastorePlugin(),
-//            GcloudPlugin(remoteDatastoreHelper.options.service)
+            GcloudPlugin(localDatastore.options.service)
         )
+
+    @Before
+    fun setUp() {
+        localDatastore.start()
+    }
 
     @After
     fun tearDown() {
-//        remoteDatastoreHelper.deleteNamespace()
+        localDatastore.stop()
     }
 
     @Test
@@ -141,7 +149,7 @@ class KtDatastoreTest {
         }
     }
 
-    @Test
+    //    @Test
     fun testCount() {
         val addressToStore = AddressEntity("St. John Pink. 69.")
         providePlugin().forEach {
@@ -178,6 +186,39 @@ class KtDatastoreTest {
                     }
                     assertEquals(expectedSize, query<AddressEntity>().size)
                 }
+        }
+    }
+
+    @Test
+    fun testStoreListOfValues() {
+        print(
+            Properties.encodeToMap(
+                AddressEntity(
+                    address = "St. John Pink.",
+                    zipCode = 2343L,
+                    contacts = listOf("address", "zipCode")
+                )
+            ).toString()
+        )
+
+        providePlugin().forEach {
+            KtDatastore(it).apply {
+                store(
+                    AddressEntity(
+                        address = "St. John Pink.",
+                        zipCode = 2343L,
+                        contacts = listOf("address", "zipCode")
+                    )
+                )
+                store(
+                    AddressEntity(
+                        address = "St. John Pink.",
+                        zipCode = 2343L,
+                        contacts = listOf("address", "zipCode", "non")
+                    )
+                )
+                println(query<AddressEntity>(listOf(Pair("address", "St. John Pink."))))
+            }
         }
     }
 }

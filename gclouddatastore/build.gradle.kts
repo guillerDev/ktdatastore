@@ -27,7 +27,6 @@ publishing {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
     api(project(":ktdatastore"))
     api("com.google.cloud:google-cloud-datastore:$gcloudDatastoreVersion")
 }
